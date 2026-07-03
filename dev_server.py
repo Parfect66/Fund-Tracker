@@ -49,25 +49,31 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(400, {"error": "Invalid symbol"})
 
         url = (f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
-               f"?range=1d&interval=1d")
+               f"?range=3mo&interval=1d")
         try:
             req = urllib.request.Request(url, headers={"User-Agent": UA,
                                                        "Accept": "application/json"})
             with urllib.request.urlopen(req, timeout=15) as resp:
                 data = json.load(resp)
-            meta = data["chart"]["result"][0]["meta"]
+            result = data["chart"]["result"][0]
+            meta = result["meta"]
             price = meta.get("regularMarketPrice")
             if not isinstance(price, (int, float)):
                 raise ValueError("no price in Yahoo response")
-            prev = meta.get("chartPreviousClose")
-            if not isinstance(prev, (int, float)):
-                prev = meta.get("previousClose")
+            raw_closes = (result.get("indicators", {}).get("quote", [{}])[0]
+                          .get("close", []))
+            series = [c for c in raw_closes if isinstance(c, (int, float))]
+            if len(series) >= 2:
+                prev = series[-2]
+            else:
+                prev = meta.get("chartPreviousClose")
             return self._json(200, {
                 "symbol": meta.get("symbol", symbol),
                 "price": price,
                 "previousClose": prev if isinstance(prev, (int, float)) else None,
                 "currency": meta.get("currency"),
                 "time": meta.get("regularMarketTime"),
+                "series": series,
             })
         except Exception as e:  # noqa: BLE001 - dev server, surface anything
             return self._json(502, {"error": str(e)})

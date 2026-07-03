@@ -73,26 +73,51 @@ async function fetchViaApi(symbol) {
 async function fetchViaCorsProxy(symbol) {
   const yahoo =
     `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}` +
-    `?range=1d&interval=1d`;
+    `?range=3mo&interval=1d`;
   const proxied = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahoo)}`;
   try {
     const res = await fetch(proxied);
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
-    const meta = data?.chart?.result?.[0]?.meta;
+    const result = data?.chart?.result?.[0];
+    const meta = result?.meta;
     if (!meta || typeof meta.regularMarketPrice !== "number") throw new Error("no meta");
+    const rawCloses = result?.indicators?.quote?.[0]?.close || [];
+    const series = rawCloses.filter((v) => typeof v === "number");
     return {
       symbol: meta.symbol || symbol,
       price: meta.regularMarketPrice,
       previousClose:
-        typeof meta.chartPreviousClose === "number"
-          ? meta.chartPreviousClose
-          : (typeof meta.previousClose === "number" ? meta.previousClose : null),
+        series.length >= 2
+          ? series[series.length - 2]
+          : (typeof meta.chartPreviousClose === "number" ? meta.chartPreviousClose : null),
       currency: meta.currency || null,
+      series,
     };
   } catch {
     return null;
   }
+}
+
+// Build a small inline sparkline SVG from a series of closes. Colour reflects
+// the 90-day trend (last vs first), independent of today's move.
+function sparklineSVG(series) {
+  if (!Array.isArray(series) || series.length < 2) {
+    return '<span class="spark-na">–</span>';
+  }
+  const w = 96, h = 28, pad = 3;
+  const min = Math.min(...series);
+  const max = Math.max(...series);
+  const range = max - min || 1;
+  const stepX = w / (series.length - 1);
+  const pts = series.map((v, i) => {
+    const x = i * stepX;
+    const y = pad + (h - 2 * pad) * (1 - (v - min) / range);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const [lx, ly] = pts[pts.length - 1].split(",");
+  const cls = series[series.length - 1] >= series[0] ? "up" : "down";
+  return `<svg class="spark ${cls}" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts.join(" ")}"/><circle cx="${lx}" cy="${ly}" r="1.8"/></svg>`;
 }
 
 // ------------------------------
@@ -138,6 +163,7 @@ async function renderFund(name) {
         <td class="num price">…</td>
         <td class="num chg">…</td>
         <td class="num pct">…</td>
+        <td class="spark-cell"><span class="spark-holder"></span></td>
       </tr>`
     )
     .join("");
@@ -156,6 +182,9 @@ async function renderFund(name) {
     const q = quotes[i];
     const row = body.querySelector(`tr[data-ticker="${CSS.escape(h.ticker)}"]`);
     if (!row) return;
+
+    const sparkHolder = row.querySelector(".spark-holder");
+    if (sparkHolder) sparkHolder.innerHTML = q ? sparklineSVG(q.series) : "";
 
     if (!q || typeof q.previousClose !== "number") {
       row.querySelector(".price").textContent = q ? fmtPrice(q.price, q.currency) : "n/a";

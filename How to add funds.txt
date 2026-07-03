@@ -1,0 +1,4 @@
+For future updates: edit files in C:\Users\steve\Claude_Code\SW-Fund-Tracker, then:
+
+git add -A && git commit -m "..." && git push
+Vercel redeploys automatically. To add a fund, drop its factsheet PDF in factsheets/ and ask me.

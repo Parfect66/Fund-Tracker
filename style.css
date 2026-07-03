@@ -159,6 +159,12 @@ th.num { text-align: right; }
 .down { color: #f87171; }
 .flat { color: #cbd0e6; }
 
+.spark-cell { width: 104px; }
+.spark { display: block; }
+.spark polyline { fill: none; stroke: currentColor; stroke-width: 1.5; }
+.spark circle { fill: currentColor; }
+.spark-na { color: #7c82a0; }
+
 .empty {
   text-align: center;
   color: #7c82a0;
