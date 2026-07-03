@@ -192,6 +192,15 @@ th.num { text-align: right; }
   color: #fff;
 }
 
+.fund-spark {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  min-width: 80px;
+}
+
+.fund-spark .spark { width: 80px; height: 24px; }
+
 .spark-cell { width: 104px; }
 .spark { display: block; }
 .spark polyline { fill: none; stroke: currentColor; stroke-width: 1.5; }

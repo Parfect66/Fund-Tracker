@@ -112,12 +112,50 @@ function windowedSeries(series) {
   return sparkDays === 30 ? series.slice(-TRADING_DAYS_30) : series;
 }
 
-// (Re)draw every row's sparkline from the stored quotes for the current window.
-// Called after a fetch and on every toggle — no network needed to switch.
+// Compute a weighted fund-level trend series from the holdings.
+// For each day, we calculate the sum of (holding price × weight), then normalize
+// to a 0–1 scale so the sparkline shows the trend independent of absolute prices.
+function fundTrendSeries(holdings, quotes) {
+  if (!holdings || !quotes) return null;
+  const maxLen = Math.max(...quotes.map(q => (q?.series?.length || 0)));
+  if (!maxLen) return null;
+
+  const dailyFundValues = [];
+  for (let dayIdx = 0; dayIdx < maxLen; dayIdx++) {
+    let sumWeightedPrice = 0;
+    let sumWeight = 0;
+    for (let i = 0; i < holdings.length; i++) {
+      const h = holdings[i];
+      const q = quotes[i];
+      if (!q?.series || !q.series[dayIdx] || typeof h.weight !== "number")
+        continue;
+      sumWeightedPrice += q.series[dayIdx] * (h.weight / 100);
+      sumWeight += h.weight / 100;
+    }
+    if (sumWeight > 0) {
+      dailyFundValues.push(sumWeightedPrice / sumWeight);
+    }
+  }
+  return dailyFundValues.length > 0 ? dailyFundValues : null;
+}
+
+// (Re)draw every row's sparkline and the fund-level sparkline from the stored
+// quotes for the current window. Called after a fetch and on every toggle.
 function drawSparklines() {
   const header = document.getElementById("sparkHeader");
   if (header) header.textContent = `${sparkDays}-day`;
   if (!lastHoldings || !lastQuotes) return;
+
+  // Fund-level trend.
+  const fundTrend = fundTrendSeries(lastHoldings, lastQuotes);
+  const fundSparkHolder = document.getElementById("fundSparkHolder");
+  if (fundSparkHolder) {
+    fundSparkHolder.innerHTML = fundTrend
+      ? sparklineSVG(windowedSeries(fundTrend))
+      : "–";
+  }
+
+  // Per-holding sparklines.
   const body = document.getElementById("holdingsBody");
   lastHoldings.forEach((h, i) => {
     const q = lastQuotes[i];
@@ -132,6 +170,8 @@ function setSparkDays(days) {
   document.querySelectorAll(".seg").forEach((b) =>
     b.classList.toggle("active", Number(b.dataset.days) === days)
   );
+  const label = document.getElementById("fundSparkLabel");
+  if (label) label.textContent = `${days}-day trend`;
   drawSparklines();
 }
 
