@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "sw-fund-tracker",
+      "runtimeExecutable": "py",
+      "runtimeArgs": ["dev_server.py", "4173"],
+      "port": 4173
+    }
+  ]
+}

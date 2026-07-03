@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+
+# Local factsheet PDFs dropped for ingestion (keep the folder's README)
+factsheets/*.pdf
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Vercel
+.vercel/

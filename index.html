@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scottish Widows Fund Tracker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="container">
+  <h1>Scottish Widows Fund Tracker</h1>
+  <p class="subtitle">
+    Enter a Scottish Widows pension fund and see its top 10 holdings with the
+    move vs the previous day's close. Holdings from the fund's Trustnet factsheet;
+    live prices from Yahoo Finance.
+  </p>
+
+  <div class="section-title">Choose a fund</div>
+  <div class="summary controls">
+    <select id="fundSelect"></select>
+    <button onclick="loadSelectedFund()">Load fund</button>
+    <button onclick="refreshCurrent()">Refresh prices</button>
+    <div class="error" id="errorBox"></div>
+  </div>
+
+  <div id="fundMeta" class="fund-meta" style="display:none;">
+    <div class="fund-title" id="fundName">–</div>
+    <div class="metric-row">
+      <div class="metric-label" id="weightedMoveLabel">Top-10 weighted daily move</div>
+      <div class="metric-value" id="weightedMove">–</div>
+    </div>
+    <div class="metric-row">
+      <div class="metric-label">Holdings as at</div>
+      <div class="metric-value" id="asAt">–</div>
+    </div>
+    <div class="data-source" id="fundSource">Source: –</div>
+    <div class="small" id="lastUpdated"></div>
+  </div>
+
+  <div class="section-title">Top 10 holdings</div>
+  <div class="table-wrap">
+    <table id="holdingsTable">
+      <thead>
+        <tr>
+          <th class="col-rank">#</th>
+          <th>Holding</th>
+          <th>Ticker</th>
+          <th class="num">Fund weight</th>
+          <th class="num">Price</th>
+          <th class="num">Change</th>
+          <th class="num">% vs prev close</th>
+        </tr>
+      </thead>
+      <tbody id="holdingsBody">
+        <tr><td colspan="7" class="empty">Pick a fund above to load its holdings.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="note">
+    "Top-10 weighted daily move" is the fund-weighted average move of these ten
+    holdings only — a proxy for how the biggest positions are pushing the fund
+    today, not the full-portfolio return.
+  </p>
+
+  <div class="footer">
+    Holdings only refresh when the factsheet does (monthly/quarterly); prices are
+    live per session. Prices from US-listed lines (including ADRs) in USD.
+    Not investment advice.
+  </div>
+</div>
+
+<script type="module" src="app.mjs"></script>
+</body>
+</html>
