@@ -3,12 +3,12 @@
 // The browser can't call Yahoo directly (CORS), so this serverless function
 // fetches on its behalf and returns just the fields we need. No API key.
 //
-// range=3mo&interval=1d gives ~90 days of daily closes. We return:
+// range=1mo&interval=1d gives ~30 days of daily closes. We return:
 //   price          latest price (meta.regularMarketPrice)
 //   previousClose  the prior trading day's close (second-last close in series)
-//   series         the daily closes, for the 90-day sparkline
+//   series         the daily closes, for the 30-day sparkline
 //
-// Note: with a 3mo range, meta.chartPreviousClose is the close from ~3 months
+// Note: with a 1mo range, meta.chartPreviousClose is the close from ~1 month
 // ago (the day before the window), NOT yesterday — so we derive previousClose
 // from the closes array instead.
 
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
   const url =
     `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}` +
-    `?range=3mo&interval=1d`;
+    `?range=1mo&interval=1d`;
 
   try {
     const response = await fetch(url, {

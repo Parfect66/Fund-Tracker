@@ -73,7 +73,7 @@ async function fetchViaApi(symbol) {
 async function fetchViaCorsProxy(symbol) {
   const yahoo =
     `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}` +
-    `?range=3mo&interval=1d`;
+    `?range=1mo&interval=1d`;
   const proxied = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahoo)}`;
   try {
     const res = await fetch(proxied);
@@ -100,7 +100,7 @@ async function fetchViaCorsProxy(symbol) {
 }
 
 // Build a small inline sparkline SVG from a series of closes. Colour reflects
-// the 90-day trend (last vs first), independent of today's move.
+// the 30-day trend (last vs first), independent of today's move.
 function sparklineSVG(series) {
   if (!Array.isArray(series) || series.length < 2) {
     return '<span class="spark-na">–</span>';
