@@ -38,7 +38,13 @@
     <div class="small" id="lastUpdated"></div>
   </div>
 
-  <div class="section-title">Top 10 holdings</div>
+  <div class="table-head-row">
+    <div class="section-title">Top 10 holdings</div>
+    <span class="spark-toggle">Trend
+      <button type="button" class="seg active" data-days="30" onclick="setSparkDays(30)">30d</button>
+      <button type="button" class="seg" data-days="90" onclick="setSparkDays(90)">90d</button>
+    </span>
+  </div>
   <div class="table-wrap">
     <table id="holdingsTable">
       <thead>
@@ -50,7 +56,7 @@
           <th class="num">Price</th>
           <th class="num">Change</th>
           <th class="num">% vs prev close</th>
-          <th>30-day</th>
+          <th id="sparkHeader">30-day</th>
         </tr>
       </thead>
       <tbody id="holdingsBody">

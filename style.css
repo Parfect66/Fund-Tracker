@@ -159,6 +159,39 @@ th.num { text-align: right; }
 .down { color: #f87171; }
 .flat { color: #cbd0e6; }
 
+.table-head-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.spark-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #a3a9c4;
+}
+
+.seg {
+  background: #0e142a;
+  border: 1px solid #2a3048;
+  color: #a3a9c4;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  margin: 0;
+}
+
+.seg:hover { background: #161d38; }
+
+.seg.active {
+  background: #2f5bff;
+  border-color: #2f5bff;
+  color: #fff;
+}
+
 .spark-cell { width: 104px; }
 .spark { display: block; }
 .spark polyline { fill: none; stroke: currentColor; stroke-width: 1.5; }

@@ -2,6 +2,13 @@ import { FUNDS } from "./funds.mjs";
 
 let currentFund = null;
 
+// Sparkline window: 30 or 90 days. We hold the full ~90d series per holding and
+// slice it client-side, so the toggle needs no refetch.
+let sparkDays = 30;
+let lastHoldings = null;
+let lastQuotes = null;
+const TRADING_DAYS_30 = 22;
+
 // ------------------------------
 // UI HELPERS
 // ------------------------------
@@ -73,7 +80,7 @@ async function fetchViaApi(symbol) {
 async function fetchViaCorsProxy(symbol) {
   const yahoo =
     `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}` +
-    `?range=1mo&interval=1d`;
+    `?range=3mo&interval=1d`;
   const proxied = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahoo)}`;
   try {
     const res = await fetch(proxied);
@@ -99,8 +106,37 @@ async function fetchViaCorsProxy(symbol) {
   }
 }
 
+// Slice the full series down to the selected window.
+function windowedSeries(series) {
+  if (!Array.isArray(series)) return series;
+  return sparkDays === 30 ? series.slice(-TRADING_DAYS_30) : series;
+}
+
+// (Re)draw every row's sparkline from the stored quotes for the current window.
+// Called after a fetch and on every toggle — no network needed to switch.
+function drawSparklines() {
+  const header = document.getElementById("sparkHeader");
+  if (header) header.textContent = `${sparkDays}-day`;
+  if (!lastHoldings || !lastQuotes) return;
+  const body = document.getElementById("holdingsBody");
+  lastHoldings.forEach((h, i) => {
+    const q = lastQuotes[i];
+    const row = body.querySelector(`tr[data-ticker="${CSS.escape(h.ticker)}"]`);
+    const holder = row?.querySelector(".spark-holder");
+    if (holder) holder.innerHTML = q ? sparklineSVG(windowedSeries(q.series)) : "";
+  });
+}
+
+function setSparkDays(days) {
+  sparkDays = days;
+  document.querySelectorAll(".seg").forEach((b) =>
+    b.classList.toggle("active", Number(b.dataset.days) === days)
+  );
+  drawSparklines();
+}
+
 // Build a small inline sparkline SVG from a series of closes. Colour reflects
-// the 30-day trend (last vs first), independent of today's move.
+// the trend across the shown window (last vs first), independent of today's move.
 function sparklineSVG(series) {
   if (!Array.isArray(series) || series.length < 2) {
     return '<span class="spark-na">–</span>';
@@ -183,9 +219,6 @@ async function renderFund(name) {
     const row = body.querySelector(`tr[data-ticker="${CSS.escape(h.ticker)}"]`);
     if (!row) return;
 
-    const sparkHolder = row.querySelector(".spark-holder");
-    if (sparkHolder) sparkHolder.innerHTML = q ? sparklineSVG(q.series) : "";
-
     if (!q || typeof q.previousClose !== "number") {
       row.querySelector(".price").textContent = q ? fmtPrice(q.price, q.currency) : "n/a";
       row.querySelector(".chg").textContent = "n/a";
@@ -226,6 +259,11 @@ async function renderFund(name) {
     ? "Top-10 weighted daily move"
     : "Top-10 average daily move (equal-weighted)";
 
+  // Store quotes and draw the sparklines for the current window.
+  lastHoldings = fund.holdings;
+  lastQuotes = quotes;
+  drawSparklines();
+
   document.getElementById("lastUpdated").textContent =
     "Prices updated: " + new Date().toLocaleString();
 }
@@ -244,3 +282,4 @@ if (firstFund) {
 
 window.loadSelectedFund = loadSelectedFund;
 window.refreshCurrent = refreshCurrent;
+window.setSparkDays = setSparkDays;

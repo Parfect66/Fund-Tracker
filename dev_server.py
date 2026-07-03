@@ -49,7 +49,7 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(400, {"error": "Invalid symbol"})
 
         url = (f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
-               f"?range=1mo&interval=1d")
+               f"?range=3mo&interval=1d")
         try:
             req = urllib.request.Request(url, headers={"User-Agent": UA,
                                                        "Accept": "application/json"})
