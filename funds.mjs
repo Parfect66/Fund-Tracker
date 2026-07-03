@@ -42,23 +42,42 @@ export const FUNDS = {
     ],
   },
 
-  "SW Schroder US Smaller Companies CS8": {
-    citicode: "r73q",
-    factsheet: "https://www.trustnet.com/factsheets/P/r73q/sw-schroder-us-smaller-companies-pn-cs8/",
-    asAt: "30 Apr 2026",
+  "SW Schroder Tokyo CS8": {
+  citicode: "R75R",
+  factsheet: "https://www.trustnet.com/factsheets/P/R75R/sw-schroder-tokyo-pn-cs8/",
+  asAt: "31 May 2026",
+  holdings: [
+    { rank: 1,  name: "Hitachi Ltd",                         ticker: "6501.T", weight: 4.1 },
+    { rank: 2,  name: "Recruit Holdings Co Ltd",             ticker: "6098.T", weight: 3.3 },
+    { rank: 3,  name: "Sumitomo Mitsui Financial Group Inc", ticker: "8316.T", weight: 3.3 },
+    { rank: 4,  name: "Toyota Motor Corp",                   ticker: "7203.T", weight: 3.2 },
+    { rank: 5,  name: "Mitsubishi Electric Corp",            ticker: "6503.T", weight: 3.1 },
+    { rank: 6,  name: "Ibiden Co Ltd",                       ticker: "4062.T", weight: 3.0 },
+    { rank: 7,  name: "TDK Corp",                            ticker: "6762.T", weight: 3.0 },
+    { rank: 8,  name: "Mizuho Financial Group Inc",          ticker: "8411.T", weight: 2.8 },
+    { rank: 9,  name: "FANUC Corp",                          ticker: "6954.T", weight: 2.4 },
+    { rank: 10, name: "Niterra Co Ltd",                      ticker: "5334.T", weight: 2.4 },
+  ],
+},
+
+
+  "Scottish Widows UK Real Estate CS8": {
+    citicode: "er96",
+    factsheet: "https://www.trustnet.com/factsheets/n/er96/scottish-widows-uk-real-estate",
+    asAt: "listed REIT holdings",
     holdings: [
-      { rank: 1,  name: "Viavi Solutions",             ticker: "VIAV", weight: 2.8 },
-      { rank: 2,  name: "ICU Medical",                 ticker: "ICUI", weight: 2.0 },
-      { rank: 3,  name: "Semtech",                     ticker: "SMTC", weight: 1.8 },
-      { rank: 4,  name: "Ciena",                       ticker: "CIEN", weight: 1.8 },
-      { rank: 5,  name: "Perella Weinberg Partners",   ticker: "PWP",  weight: 1.8 },
-      { rank: 6,  name: "Modine Manufacturing",        ticker: "MOD",  weight: 1.8 },
-      { rank: 7,  name: "Moog Inc",                    ticker: "MOG-A", weight: 1.7 },
-      { rank: 8,  name: "Hexcel",                      ticker: "HXL",  weight: 1.7 },
-      { rank: 9,  name: "McGrath RentCorp",            ticker: "MGRC", weight: 1.7 },
-      { rank: 10, name: "MACOM Technology Solutions",  ticker: "MTSI", weight: 1.7 },
+  { rank: 1,  name: "Hitachi Ltd",                         ticker: "6501.T", weight: 4.1 },
+  { rank: 2,  name: "Recruit Holdings Co Ltd",             ticker: "6098.T", weight: 3.3 },
+  { rank: 3,  name: "Sumitomo Mitsui Financial Group Inc", ticker: "8316.T", weight: 3.3 },
+  { rank: 4,  name: "Toyota Motor Corp",                   ticker: "7203.T", weight: 3.2 },
+  { rank: 5,  name: "Mitsubishi Electric Corp",            ticker: "6503.T", weight: 3.1 },
+  { rank: 6,  name: "Ibiden Co Ltd",                       ticker: "4062.T", weight: 3.0 },
+  { rank: 7,  name: "TDK Corp",                            ticker: "6762.T", weight: 3.0 },
+  { rank: 8,  name: "Mizuho Financial Group Inc",          ticker: "8411.T", weight: 2.8 },
+  { rank: 9,  name: "FANUC Corp",                          ticker: "6954.T", weight: 2.4 },
+  { rank: 10, name: "Niterra Co Ltd",                      ticker: "5334.T", weight: 2.4 }
     ],
-  },
+    },
 
   "SW Schroder Global Cities Real Estate CS8": {
     citicode: "r6o9",
