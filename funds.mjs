@@ -240,4 +240,40 @@ export const FUNDS = {
       { rank: 10, name: "Canadian Pacific Kansas City", ticker: "CP.TO", weight: 2.37 },
     ],
   },
+
+  "SW Blackrock ACS Climate Transition Screened World Equity CS8": {
+    citicode: "LBZE",
+    factsheet: "https://www.trustnet.com/factsheets/P/LBZE/sw-blackrock-acs-climate-transition-screened-and-optimised-world-equity-cs8-pn/",
+    asAt: "31 Mar 2026",
+    holdings: [
+      { rank: 1,  name: "NVIDIA",                    ticker: "NVDA",   weight: 5.34 },
+      { rank: 2,  name: "Apple",                     ticker: "AAPL",   weight: 5.07 },
+      { rank: 3,  name: "Microsoft",                 ticker: "MSFT",   weight: 3.31 },
+      { rank: 4,  name: "Amazon",                    ticker: "AMZN",   weight: 2.60 },
+      { rank: 5,  name: "Alphabet (Class A)",        ticker: "GOOGL",  weight: 2.16 },
+      { rank: 6,  name: "Alphabet (Class C)",        ticker: "GOOG",   weight: 1.81 },
+      { rank: 7,  name: "Broadcom",                  ticker: "AVGO",   weight: 1.71 },
+      { rank: 8,  name: "Mastercard",                ticker: "MA",     weight: 1.47 },
+      { rank: 9,  name: "Meta Platforms",            ticker: "META",   weight: 1.47 },
+      { rank: 10, name: "Tesla",                     ticker: "TSLA",   weight: 1.43 },
+    ],
+  },
+
+  "SW SSGA International Equity Index CS8": {
+    citicode: "R75K",
+    factsheet: "https://www.trustnet.com/factsheets/P/R75K/sw-ssga-international-equity-index-cs8-pn/",
+    asAt: "31 Mar 2026",
+    holdings: [
+      { rank: 1,  name: "NVIDIA",                    ticker: "NVDA",   weight: 5.17 },
+      { rank: 2,  name: "Apple",                     ticker: "AAPL",   weight: 4.63 },
+      { rank: 3,  name: "Microsoft",                 ticker: "MSFT",   weight: 3.48 },
+      { rank: 4,  name: "Amazon",                    ticker: "AMZN",   weight: 2.53 },
+      { rank: 5,  name: "Alphabet (Class A)",        ticker: "GOOGL",  weight: 2.12 },
+      { rank: 6,  name: "Broadcom",                  ticker: "AVGO",   weight: 1.81 },
+      { rank: 7,  name: "Alphabet (Class C)",        ticker: "GOOG",   weight: 1.72 },
+      { rank: 8,  name: "Taiwan Semiconductor",      ticker: "2330.TW", weight: 1.70 },
+      { rank: 9,  name: "Meta Platforms",            ticker: "META",   weight: 1.58 },
+      { rank: 10, name: "Tesla",                     ticker: "TSLA",   weight: 1.33 },
+    ],
+  },
 };
