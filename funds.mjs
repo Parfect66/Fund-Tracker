@@ -204,4 +204,40 @@ export const FUNDS = {
       { rank: 10, name: "Shengyi Technology (A)",    ticker: "600183.SS", weight: 3.2 },
     ],
   },
+
+  "SW BNY Mellon UK Income CS8": {
+    citicode: "R70Q",
+    factsheet: "https://www.trustnet.com/factsheets/P/R70Q/sw-bny-mellon-uk-income-cs8-pn/",
+    asAt: "31 Mar 2026",
+    holdings: [
+      { rank: 1,  name: "HSBC Holdings",             ticker: "HSBA.L", weight: 10.21 },
+      { rank: 2,  name: "Shell",                     ticker: "SHEL.L", weight: 9.98 },
+      { rank: 3,  name: "GSK",                       ticker: "GSK.L",  weight: 8.00 },
+      { rank: 4,  name: "Barclays",                  ticker: "BARC.L", weight: 5.51 },
+      { rank: 5,  name: "Lloyds Banking Group",      ticker: "LLOY.L", weight: 4.27 },
+      { rank: 6,  name: "Standard Chartered",        ticker: "STAN.L", weight: 4.25 },
+      { rank: 7,  name: "Land Securities Group",     ticker: "LAND.L", weight: 3.95 },
+      { rank: 8,  name: "Glencore",                  ticker: "GLEN.L", weight: 3.78 },
+      { rank: 9,  name: "Volkswagen (Pref)",         ticker: "VOW3.DE", weight: 3.45 },
+      { rank: 10, name: "BNP Paribas",               ticker: "BNPP.PA", weight: 2.91 },
+    ],
+  },
+
+  "SW L&G FTSE Developed Core Infrastructure Index CS8": {
+    citicode: "V3UR",
+    factsheet: "https://www.trustnet.com/factsheets/P/V3UR/sw-l-g-ftse-developed-core-infrastructure-index-cs8-pn/",
+    asAt: "31 Mar 2026",
+    holdings: [
+      { rank: 1,  name: "NextEra Energy",            ticker: "NEE",     weight: 6.46 },
+      { rank: 2,  name: "Union Pacific",             ticker: "UNP",     weight: 4.84 },
+      { rank: 3,  name: "Enbridge",                  ticker: "ENB.TO",  weight: 3.94 },
+      { rank: 4,  name: "Southern Company",          ticker: "SO",      weight: 3.54 },
+      { rank: 5,  name: "Duke Energy",               ticker: "DUK",     weight: 3.39 },
+      { rank: 6,  name: "Williams Companies",        ticker: "WMB",     weight: 2.96 },
+      { rank: 7,  name: "National Grid",             ticker: "NGG",     weight: 2.77 },
+      { rank: 8,  name: "American Tower",            ticker: "AMT",     weight: 2.70 },
+      { rank: 9,  name: "CSX",                       ticker: "CSX",     weight: 2.57 },
+      { rank: 10, name: "Canadian Pacific Kansas City", ticker: "CP.TO", weight: 2.37 },
+    ],
+  },
 };
