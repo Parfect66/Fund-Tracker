@@ -113,4 +113,40 @@ export const FUNDS = {
       { rank: 10, name: "Tesla",                     ticker: "TSLA",   weight: 1.33 },
     ],
   },
+
+  "SW Artemis US Select CS8": {
+    citicode: "R6ZO",
+    factsheet: "https://www.trustnet.com/factsheets/P/R6ZO/sw-artemis-us-select-pn-cs8/",
+    asAt: "31 May 2026",
+    holdings: [
+      { rank: 1,  name: "NVIDIA",                    ticker: "NVDA",   weight: 7.7 },
+      { rank: 2,  name: "Advanced Micro Devices",    ticker: "AMD",    weight: 6.5 },
+      { rank: 3,  name: "Alphabet (Class A)",        ticker: "GOOGL",  weight: 6.0 },
+      { rank: 4,  name: "Amazon",                    ticker: "AMZN",   weight: 5.3 },
+      { rank: 5,  name: "Goldman Sachs Group",       ticker: "GS",     weight: 4.2 },
+      { rank: 6,  name: "Bank of New York Mellon",   ticker: "BK",     weight: 4.1 },
+      { rank: 7,  name: "J.B. Hunt Transport",       ticker: "JBHT",   weight: 3.1 },
+      { rank: 8,  name: "Micron Technology",         ticker: "MU",     weight: 3.0 },
+      { rank: 9,  name: "Cardinal Health",           ticker: "CAH",    weight: 2.8 },
+      { rank: 10, name: "Eli Lilly & Co",            ticker: "LLY",    weight: 2.7 },
+    ],
+  },
+
+  "SW Baillie Gifford Japanese Equity CS8": {
+    citicode: "R75D",
+    factsheet: "https://www.trustnet.com/factsheets/P/R75D/sw-baillie-gifford-japanese-equity-pn-cs8/",
+    asAt: "30 Jun 2026",
+    holdings: [
+      { rank: 1,  name: "SoftBank Group",            ticker: "9984.T", weight: 6.7 },
+      { rank: 2,  name: "Sumitomo Mitsui Trust",     ticker: "8233.T", weight: 5.4 },
+      { rank: 3,  name: "Sony",                      ticker: "6758.T", weight: 3.7 },
+      { rank: 4,  name: "SBI Holdings",              ticker: "8473.T", weight: 3.6 },
+      { rank: 5,  name: "FANUC",                     ticker: "6954.T", weight: 3.5 },
+      { rank: 6,  name: "SMC",                       ticker: "6273.T", weight: 3.3 },
+      { rank: 7,  name: "Rakuten",                   ticker: "4755.T", weight: 3.1 },
+      { rank: 8,  name: "Recruit Holdings",          ticker: "6098.T", weight: 3.1 },
+      { rank: 9,  name: "CyberAgent",                ticker: "4751.T", weight: 2.8 },
+      { rank: 10, name: "Keyence",                   ticker: "6861.T", weight: 2.7 },
+    ],
+  },
 };
