@@ -124,7 +124,7 @@ export const FUNDS = {
       { rank: 3,  name: "Alphabet (Class A)",        ticker: "GOOGL",  weight: 6.0 },
       { rank: 4,  name: "Amazon",                    ticker: "AMZN",   weight: 5.3 },
       { rank: 5,  name: "Goldman Sachs Group",       ticker: "GS",     weight: 4.2 },
-      { rank: 6,  name: "Bank of New York Mellon",   ticker: "BK",     weight: 4.1 },
+      { rank: 6,  name: "Bank of New York Mellon",   ticker: "BNY",     weight: 4.1 },
       { rank: 7,  name: "J.B. Hunt Transport",       ticker: "JBHT",   weight: 3.1 },
       { rank: 8,  name: "Micron Technology",         ticker: "MU",     weight: 3.0 },
       { rank: 9,  name: "Cardinal Health",           ticker: "CAH",    weight: 2.8 },
