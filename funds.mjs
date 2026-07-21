@@ -132,6 +132,24 @@ export const FUNDS = {
     ],
   },
 
+  "SW Fidelity Asia Pn CS8": {
+    citicode: "R71T",
+    factsheet: "https://www.trustnet.com/factsheets/P/R71T/sw-fidelity-asia-pn-cs8/",
+    asAt: "30 Jun 2026",
+    holdings: [
+      { rank: 1,  name: "Taiwan Semiconductor",        ticker: "2330.TW",   weight: 10.0 },
+      { rank: 2,  name: "SK Hynix",                    ticker: "000660.KS", weight: 9.6  },
+      { rank: 3,  name: "Samsung Electronics",         ticker: "005930.KS", weight: 9.2  },
+      { rank: 4,  name: "Tencent Holdings",            ticker: "0700.HK",   weight: 4.1  },
+      { rank: 5,  name: "MediaTek",                    ticker: "2454.TW",   weight: 4.1  },
+      { rank: 6,  name: "Samsung Electro-Mechanics",   ticker: "009150.KS", weight: 3.5  },
+      { rank: 7,  name: "Unimicron Technology",        ticker: "3037.TW",   weight: 3.4  },
+      { rank: 8,  name: "Elite Material",              ticker: "2383.TW",   weight: 3.1  },
+      { rank: 9,  name: "AMEC",                        ticker: "688012.SS", weight: 2.9  },
+      { rank: 10, name: "ASE Technology Holding",      ticker: "3711.TW",   weight: 2.4  },
+    ],
+  },
+
   "SW Baillie Gifford Japanese Equity CS8": {
     citicode: "R75D",
     factsheet: "https://www.trustnet.com/factsheets/P/R75D/sw-baillie-gifford-japanese-equity-pn-cs8/",
