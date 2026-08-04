@@ -167,4 +167,22 @@ export const FUNDS = {
       { rank: 10, name: "Keyence",                   ticker: "6861.T", weight: 2.7 },
     ],
   },
+
+  "SW SSGA Asia Pacific ex Japan CS8": {
+    citicode: "R71X",
+    factsheet: "https://www.trustnet.com/factsheets/P/R71X/sw-ssga-asia-pacific-ex-japan-pn-cs8/",
+    asAt: "04 Aug 2026",
+    holdings: [
+      { rank: 1,  name: "Samsung Electronics",       ticker: "005930.KS", weight: 15.4 },
+      { rank: 2,  name: "SK Hynix",                  ticker: "000660.KS", weight: 10.3 },
+      { rank: 3,  name: "Commonwealth Bank",         ticker: "CBA.AX",    weight: 4.6  },
+      { rank: 4,  name: "AIA Group",                 ticker: "1299.HK",   weight: 2.5  },
+      { rank: 5,  name: "Westpac Banking",           ticker: "WBC.AX",    weight: 2.1  },
+      { rank: 6,  name: "DBS Group Holdings",        ticker: "D05.SI",    weight: 2.0  },
+      { rank: 7,  name: "National Australia Bank",   ticker: "NAB.AX",    weight: 1.9  },
+      { rank: 8,  name: "Samsung Electronics Pref",  ticker: "068270.KS", weight: 1.9  },
+      { rank: 9,  name: "ANZ Banking Group",         ticker: "ANZ.AX",    weight: 1.7  },
+      { rank: 10, name: "Hong Kong Exchanges",       ticker: "0388.HK",   weight: 1.4  },
+    ],
+  },
 };

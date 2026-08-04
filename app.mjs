@@ -1,4 +1,28 @@
-import { FUNDS } from "./funds.mjs";
+let FUNDS = null;
+let fundPromise = null;
+
+// Dynamic import with cache-busting to ensure fresh module loads
+async function loadFunds() {
+  if (!fundPromise) {
+    fundPromise = (async () => {
+      if (!FUNDS) {
+        const now = Date.now();
+        const module = await import(`./funds.mjs?t=${now}`);
+        FUNDS = module.FUNDS;
+      }
+      return FUNDS;
+    })();
+  }
+  return fundPromise;
+}
+
+// Ensure FUNDS is loaded before any fund operations
+async function ensureFundsLoaded() {
+  if (!FUNDS) {
+    await loadFunds();
+  }
+  return FUNDS;
+}
 
 let currentFund = null;
 
@@ -199,7 +223,8 @@ function sparklineSVG(series) {
 // ------------------------------
 // LOAD A FUND
 // ------------------------------
-function loadSelectedFund() {
+async function loadSelectedFund() {
+  await ensureFundsLoaded();
   const name = document.getElementById("fundSelect").value;
   if (!FUNDS[name]) {
     setError(`"${name}" isn't in the tracker yet.`);
@@ -311,15 +336,18 @@ async function renderFund(name) {
 // ------------------------------
 // INIT + EXPOSE
 // ------------------------------
-populateFundList();
+// Wait for FUNDS to load, then initialize
+ensureFundsLoaded().then(() => {
+  populateFundList();
 
-// Preload the first fund so there's something on screen immediately.
-const firstFund = document.getElementById("fundSelect").value;
-if (firstFund) {
-  currentFund = firstFund;
-  renderFund(firstFund);
-}
+  // Preload the first fund so there's something on screen immediately.
+  const firstFund = document.getElementById("fundSelect").value;
+  if (firstFund) {
+    currentFund = firstFund;
+    renderFund(firstFund);
+  }
 
-window.loadSelectedFund = loadSelectedFund;
-window.refreshCurrent = refreshCurrent;
-window.setSparkDays = setSparkDays;
+  window.loadSelectedFund = loadSelectedFund;
+  window.refreshCurrent = refreshCurrent;
+  window.setSparkDays = setSparkDays;
+});
