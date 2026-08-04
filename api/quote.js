@@ -103,20 +103,26 @@ export default async function handler(req, res) {
 
   try {
     let quote = null;
+    let source = "unknown";
 
     // Try FMP first for all symbols (conserve Marketstack's 100 calls/month)
     try {
       quote = await fetchFmpQuote(symbol);
+      source = "FMP";
     } catch (e) {
+      console.log(`FMP failed for ${symbol}: ${e.message}`);
       try {
         // Fall back to Marketstack for international symbols FMP couldn't handle
         if (shouldUseMarketstack(symbol)) {
           quote = await fetchMarketstackQuote(symbol);
+          source = "Marketstack";
         } else {
           throw e; // Re-throw to fall through to Yahoo
         }
       } catch (e2) {
+        console.log(`Marketstack failed for ${symbol}: ${e2.message}`);
         quote = await fetchYahooQuote(symbol);
+        source = "Yahoo";
       }
     }
 
@@ -132,6 +138,7 @@ export default async function handler(req, res) {
       currency: null,
       time: quote.time,
       series: quote.series || [],
+      _source: source, // Debug: shows which source was used
     });
   } catch (e) {
     res.status(502).json({ error: e.message });
