@@ -46,15 +46,13 @@ export default async function handler(req, res) {
     const rawCloses = result?.indicators?.quote?.[0]?.close || [];
     const series = rawCloses.filter((v) => typeof v === "number");
 
-    // When markets are closed (e.g., early morning UK time), meta.regularMarketPrice
-    // equals the last close in series. In this case, use series values directly to
-    // get 1-day change: latest vs previous, not latest vs day-before-previous.
-    const latestClose = series.length > 0 ? series[series.length - 1] : null;
-    const price = latestClose !== null ? latestClose : meta.regularMarketPrice;
-    const previousClose =
-      series.length >= 2
-        ? series[series.length - 2]
-        : (typeof meta.chartPreviousClose === "number" ? meta.chartPreviousClose : null);
+    // Use meta.chartPreviousClose as the authoritative previous close, since it comes
+    // directly from Yahoo's meta object. The series[length-2] is unreliable due to
+    // potential index misalignment with timestamps.
+    const price = meta.regularMarketPrice;
+    const previousClose = typeof meta.previousClose === "number"
+      ? meta.previousClose
+      : (typeof meta.chartPreviousClose === "number" ? meta.chartPreviousClose : null);
 
     res.setHeader("Cache-Control", "s-maxage=300");
     res.status(200).json({
