@@ -17,6 +17,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.request
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
@@ -38,6 +39,27 @@ if os.path.exists(ENV_FILE):
                 key, _, val = line.partition("=")
                 if key:
                     os.environ[key.strip()] = val.strip()
+
+
+def fetch_finnhub_quote(symbol):
+    key = os.environ.get("FINNHUB_KEY")
+    if not key:
+        raise ValueError("Finnhub key not configured")
+
+    url = f"https://finnhub.io/api/v1/quote?symbol={symbol}&token={key}"
+    req = urllib.request.Request(url, headers={"Accept": "application/json"})
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        data = json.load(resp)
+
+    if not isinstance(data.get("c"), (int, float)) or not isinstance(data.get("pc"), (int, float)):
+        raise ValueError(f"Finnhub: missing price data for {symbol}")
+
+    return {
+        "price": data["c"],
+        "previousClose": data["pc"],
+        "time": data.get("t", int(time.time())),
+        "series": [data["pc"]],
+    }
 
 
 def fetch_marketstack_quote(symbol):
@@ -154,19 +176,28 @@ class Handler(SimpleHTTPRequestHandler):
 
         try:
             quote = None
+            source = "unknown"
 
-            # Try FMP first for all symbols (conserve Marketstack's 100 calls/month)
+            # Try Finnhub first (primary source, good free tier, global coverage)
             try:
-                quote = fetch_fmp_quote(symbol)
+                quote = fetch_finnhub_quote(symbol)
+                source = "Finnhub"
             except Exception as e:
                 try:
-                    # Fall back to Marketstack for international symbols FMP couldn't handle
-                    if should_use_marketstack(symbol):
-                        quote = fetch_marketstack_quote(symbol)
-                    else:
-                        raise e  # Re-throw to fall through to Yahoo
+                    # Fall back to FMP
+                    quote = fetch_fmp_quote(symbol)
+                    source = "FMP"
                 except Exception as e2:
-                    quote = fetch_yahoo_quote(symbol)
+                    try:
+                        # Fall back to Marketstack for international symbols
+                        if should_use_marketstack(symbol):
+                            quote = fetch_marketstack_quote(symbol)
+                            source = "Marketstack"
+                        else:
+                            raise e2  # Re-throw to fall through to Yahoo
+                    except Exception as e3:
+                        quote = fetch_yahoo_quote(symbol)
+                        source = "Yahoo"
 
             if not quote or not isinstance(quote.get("price"), (int, float)):
                 raise ValueError("Failed to fetch quote from any source")
@@ -178,6 +209,7 @@ class Handler(SimpleHTTPRequestHandler):
                 "currency": None,
                 "time": quote["time"],
                 "series": quote.get("series", []),
+                "_source": source,
             })
         except Exception as e:  # noqa: BLE001 - dev server, surface anything
             return self._json(502, {"error": str(e)})

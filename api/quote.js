@@ -1,8 +1,30 @@
-// Multi-source quote API: tries Marketstack first, then FMP, falls back to Yahoo.
+// Multi-source quote API: tries Finnhub first, then FMP, Marketstack, Yahoo.
 //
+// Finnhub: primary source, good free tier, global coverage
+// FMP: fallback if Finnhub doesn't have symbol or reaches limits
 // Marketstack: reliable for international symbols (.L, .T, .KS, .TW, .DE, etc)
-// FMP: fallback for international if Marketstack fails
-// Yahoo Finance: final fallback for everything, but known to have stale data issues
+// Yahoo Finance: final fallback for everything
+
+async function fetchFinnhubQuote(symbol) {
+  const key = process.env.FINNHUB_KEY;
+  if (!key) throw new Error('Finnhub key not configured');
+
+  const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${key}`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Finnhub HTTP ' + response.status);
+
+  const data = await response.json();
+  if (typeof data.c !== 'number' || typeof data.pc !== 'number') {
+    throw new Error(`Finnhub: missing price data for ${symbol}`);
+  }
+
+  return {
+    price: data.c,
+    previousClose: data.pc,
+    time: data.t || Math.floor(Date.now() / 1000),
+    series: [data.pc],
+  };
+}
 
 async function fetchMarketstackQuote(symbol) {
   const key = process.env.MARKETSTACK_KEY;
@@ -105,24 +127,31 @@ export default async function handler(req, res) {
     let quote = null;
     let source = "unknown";
 
-    // Try FMP first for all symbols (conserve Marketstack's 100 calls/month)
+    // Try Finnhub first (primary source, good free tier, global coverage)
     try {
-      quote = await fetchFmpQuote(symbol);
-      source = "FMP";
+      quote = await fetchFinnhubQuote(symbol);
+      source = "Finnhub";
     } catch (e) {
-      console.log(`FMP failed for ${symbol}: ${e.message}`);
+      console.log(`Finnhub failed for ${symbol}: ${e.message}`);
       try {
-        // Fall back to Marketstack for international symbols FMP couldn't handle
-        if (shouldUseMarketstack(symbol)) {
-          quote = await fetchMarketstackQuote(symbol);
-          source = "Marketstack";
-        } else {
-          throw e; // Re-throw to fall through to Yahoo
-        }
+        // Fall back to FMP
+        quote = await fetchFmpQuote(symbol);
+        source = "FMP";
       } catch (e2) {
-        console.log(`Marketstack failed for ${symbol}: ${e2.message}`);
-        quote = await fetchYahooQuote(symbol);
-        source = "Yahoo";
+        console.log(`FMP failed for ${symbol}: ${e2.message}`);
+        try {
+          // Fall back to Marketstack for international symbols
+          if (shouldUseMarketstack(symbol)) {
+            quote = await fetchMarketstackQuote(symbol);
+            source = "Marketstack";
+          } else {
+            throw e2; // Re-throw to fall through to Yahoo
+          }
+        } catch (e3) {
+          console.log(`Marketstack failed for ${symbol}: ${e3.message}`);
+          quote = await fetchYahooQuote(symbol);
+          source = "Yahoo";
+        }
       }
     }
 
