@@ -46,7 +46,11 @@ export default async function handler(req, res) {
     const rawCloses = result?.indicators?.quote?.[0]?.close || [];
     const series = rawCloses.filter((v) => typeof v === "number");
 
-    const price = meta.regularMarketPrice;
+    // When markets are closed (e.g., early morning UK time), meta.regularMarketPrice
+    // equals the last close in series. In this case, use series values directly to
+    // get 1-day change: latest vs previous, not latest vs day-before-previous.
+    const latestClose = series.length > 0 ? series[series.length - 1] : null;
+    const price = latestClose !== null ? latestClose : meta.regularMarketPrice;
     const previousClose =
       series.length >= 2
         ? series[series.length - 2]
