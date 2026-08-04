@@ -32,7 +32,7 @@ async function fetchFmpQuote(symbol) {
   const key = process.env.FMP_KEY;
   if (!key) throw new Error('FMP key not configured');
 
-  const url = `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${key}`;
+  const url = `https://financialmodelingprep.com/stable/quote?symbol=${symbol}&apikey=${key}`;
   const response = await fetch(url);
   if (!response.ok) throw new Error('FMP HTTP ' + response.status);
 
@@ -42,14 +42,14 @@ async function fetchFmpQuote(symbol) {
   }
 
   const quote = data[0];
-  if (!quote.price || !quote.previousClose) {
+  if (!quote.price || typeof quote.previousClose !== 'number') {
     throw new Error(`FMP: missing price data for ${symbol}`);
   }
 
   return {
     price: quote.price,
     previousClose: quote.previousClose,
-    time: Math.floor(quote.timestamp * 1000),
+    time: quote.timestamp || Math.floor(Date.now() / 1000),
     series: [quote.previousClose],
   };
 }
