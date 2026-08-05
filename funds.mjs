@@ -185,4 +185,22 @@ export const FUNDS = {
       { rank: 10, name: "Hong Kong Exchanges",       ticker: "0388.HK",   weight: 1.4  },
     ],
   },
+
+  "SW Schroder US Smaller Companies CS8": {
+    citicode: "R73Q",
+    factsheet: "https://www.trustnet.com/factsheets/P/R73Q/sw-schroder-us-smaller-companies-pn-cs8/",
+    asAt: "05 Aug 2026",
+    holdings: [
+      { rank: 1,  name: "ICU Medical Inc",              ticker: "ICUI",   weight: 2.6 },
+      { rank: 2,  name: "Commvault Systems Inc",        ticker: "CVLT",   weight: 2.1 },
+      { rank: 3,  name: "Repligen Corp",                ticker: "RGEN",   weight: 2.0 },
+      { rank: 4,  name: "Cavco Industries Inc",         ticker: "CVCO",   weight: 1.9 },
+      { rank: 5,  name: "Materion Corp",                ticker: "MTRN",   weight: 1.9 },
+      { rank: 6,  name: "Novanta Inc",                  ticker: "NOVT",   weight: 1.9 },
+      { rank: 7,  name: "First Bancorp/Southern Pines", ticker: "FNCB",   weight: 1.9 },
+      { rank: 8,  name: "Viavi Solutions Inc",          ticker: "VIAVI",  weight: 1.9 },
+      { rank: 9,  name: "First BanCorp/Puerto Rico",    ticker: "FBK",    weight: 1.8 },
+      { rank: 10, name: "McGrath RentCorp",             ticker: "MGRC",   weight: 1.7 },
+    ],
+  },
 };
