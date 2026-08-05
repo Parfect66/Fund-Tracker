@@ -202,6 +202,18 @@ export default async function handler(req, res) {
       }
     }
 
+    // Always fetch full series from Yahoo for 1w/4w/8w calculations, even if price came from another source
+    if (!quote.series || quote.series.length < 10) {
+      try {
+        const yahooQuote = await fetchYahooQuote(symbol);
+        if (yahooQuote.series && yahooQuote.series.length > 10) {
+          quote.series = yahooQuote.series;
+        }
+      } catch {
+        // If Yahoo fails, keep whatever series we have
+      }
+    }
+
     res.setHeader("Cache-Control", "s-maxage=60");
     res.status(200).json({
       symbol: symbol,
