@@ -25,13 +25,13 @@ async function ensureFundsLoaded() {
 }
 
 let currentFund = null;
-
-// Sparkline window: 30 or 90 days. We hold the full ~90d series per holding and
-// slice it client-side, so the toggle needs no refetch.
-let sparkDays = 30;
 let lastHoldings = null;
 let lastQuotes = null;
-const TRADING_DAYS_30 = 22;
+
+// Trading days in each range
+const TRADING_DAYS_1W = 5;
+const TRADING_DAYS_4W = 22;
+const TRADING_DAYS_8W = 40;
 
 // ------------------------------
 // UI HELPERS
@@ -69,12 +69,16 @@ function changeClass(v) {
 // ------------------------------
 function populateFundList() {
   const select = document.getElementById("fundSelect");
+  const deleted = JSON.parse(localStorage.getItem("deletedFunds") || "[]");
   select.innerHTML = Object.keys(FUNDS)
+    .filter(name => !deleted.includes(name))
     .sort((a, b) => a.localeCompare(b))
     .map((name) => `<option value="${name}">${name}</option>`)
     .join("");
   // Load automatically when the selection changes.
+  select.removeEventListener("change", loadSelectedFund);
   select.addEventListener("change", loadSelectedFund);
+  updateRestoreButton();
 }
 
 // ------------------------------
@@ -95,7 +99,19 @@ async function fetchViaApi(symbol) {
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
     if (typeof data.price !== "number") throw new Error("no price");
-    return data; // { price, previousClose, currency, ... }
+
+    // Extract after-hours data if available from Finnhub response
+    let afterHoursPct = null;
+    if (typeof data.afterHoursChange === "number" && typeof data.price === "number") {
+      afterHoursPct = (data.afterHoursChange / data.price) * 100;
+    } else if (typeof data.afterHoursChangePercent === "number") {
+      afterHoursPct = data.afterHoursChangePercent;
+    }
+
+    return {
+      ...data,
+      afterHoursChangePercent: afterHoursPct,
+    };
   } catch {
     return null;
   }
@@ -115,6 +131,19 @@ async function fetchViaCorsProxy(symbol) {
     if (!meta || typeof meta.regularMarketPrice !== "number") throw new Error("no meta");
     const rawCloses = result?.indicators?.quote?.[0]?.close || [];
     const series = rawCloses.filter((v) => typeof v === "number");
+
+    // After-hours data - try multiple field name variations Yahoo uses
+    let ahPct = null;
+    if (typeof meta.postMarketChangePercent === "number") {
+      ahPct = meta.postMarketChangePercent;
+    } else if (typeof meta.regularMarketChangePercent === "number" && meta.postMarketPrice) {
+      // If we have post-market price but not percent, calculate it
+      const postPrice = typeof meta.postMarketPrice === "number" ? meta.postMarketPrice : null;
+      if (postPrice && typeof meta.regularMarketPrice === "number") {
+        ahPct = ((postPrice - meta.regularMarketPrice) / meta.regularMarketPrice) * 100;
+      }
+    }
+
     return {
       symbol: meta.symbol || symbol,
       price: meta.regularMarketPrice,
@@ -124,100 +153,21 @@ async function fetchViaCorsProxy(symbol) {
           : (typeof meta.chartPreviousClose === "number" ? meta.chartPreviousClose : null),
       currency: meta.currency || null,
       series,
+      afterHoursPrice: meta.postMarketPrice || null,
+      afterHoursChangePercent: ahPct,
     };
   } catch {
     return null;
   }
 }
 
-// Slice the full series down to the selected window.
-function windowedSeries(series) {
-  if (!Array.isArray(series)) return series;
-  return sparkDays === 30 ? series.slice(-TRADING_DAYS_30) : series;
-}
-
-// Compute a weighted fund-level trend series from the holdings.
-// For each day, we calculate the sum of (holding price × weight), then normalize
-// to a 0–1 scale so the sparkline shows the trend independent of absolute prices.
-function fundTrendSeries(holdings, quotes) {
-  if (!holdings || !quotes) return null;
-  const maxLen = Math.max(...quotes.map(q => (q?.series?.length || 0)));
-  if (!maxLen) return null;
-
-  const dailyFundValues = [];
-  for (let dayIdx = 0; dayIdx < maxLen; dayIdx++) {
-    let sumWeightedPrice = 0;
-    let sumWeight = 0;
-    for (let i = 0; i < holdings.length; i++) {
-      const h = holdings[i];
-      const q = quotes[i];
-      if (!q?.series || !q.series[dayIdx] || typeof h.weight !== "number")
-        continue;
-      sumWeightedPrice += q.series[dayIdx] * (h.weight / 100);
-      sumWeight += h.weight / 100;
-    }
-    if (sumWeight > 0) {
-      dailyFundValues.push(sumWeightedPrice / sumWeight);
-    }
-  }
-  return dailyFundValues.length > 0 ? dailyFundValues : null;
-}
-
-// (Re)draw every row's sparkline and the fund-level sparkline from the stored
-// quotes for the current window. Called after a fetch and on every toggle.
-function drawSparklines() {
-  const header = document.getElementById("sparkHeader");
-  if (header) header.textContent = `${sparkDays}-day`;
-  if (!lastHoldings || !lastQuotes) return;
-
-  // Fund-level trend.
-  const fundTrend = fundTrendSeries(lastHoldings, lastQuotes);
-  const fundSparkHolder = document.getElementById("fundSparkHolder");
-  if (fundSparkHolder) {
-    fundSparkHolder.innerHTML = fundTrend
-      ? sparklineSVG(windowedSeries(fundTrend))
-      : "–";
-  }
-
-  // Per-holding sparklines.
-  const body = document.getElementById("holdingsBody");
-  lastHoldings.forEach((h, i) => {
-    const q = lastQuotes[i];
-    const row = body.querySelector(`tr[data-ticker="${CSS.escape(h.ticker)}"]`);
-    const holder = row?.querySelector(".spark-holder");
-    if (holder) holder.innerHTML = q ? sparklineSVG(windowedSeries(q.series)) : "";
-  });
-}
-
-function setSparkDays(days) {
-  sparkDays = days;
-  document.querySelectorAll(".seg").forEach((b) =>
-    b.classList.toggle("active", Number(b.dataset.days) === days)
-  );
-  const label = document.getElementById("fundSparkLabel");
-  if (label) label.textContent = `${days}-day trend`;
-  drawSparklines();
-}
-
-// Build a small inline sparkline SVG from a series of closes. Colour reflects
-// the trend across the shown window (last vs first), independent of today's move.
-function sparklineSVG(series) {
-  if (!Array.isArray(series) || series.length < 2) {
-    return '<span class="spark-na">–</span>';
-  }
-  const w = 96, h = 28, pad = 3;
-  const min = Math.min(...series);
-  const max = Math.max(...series);
-  const range = max - min || 1;
-  const stepX = w / (series.length - 1);
-  const pts = series.map((v, i) => {
-    const x = i * stepX;
-    const y = pad + (h - 2 * pad) * (1 - (v - min) / range);
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  });
-  const [lx, ly] = pts[pts.length - 1].split(",");
-  const cls = series[series.length - 1] >= series[0] ? "up" : "down";
-  return `<svg class="spark ${cls}" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts.join(" ")}"/><circle cx="${lx}" cy="${ly}" r="1.8"/></svg>`;
+// Calculate % change over a specified number of trading days.
+function calcPercentChange(series, tradingDays) {
+  if (!Array.isArray(series) || series.length < tradingDays + 1) return null;
+  const oldPrice = series[series.length - tradingDays - 1];
+  const newPrice = series[series.length - 1];
+  if (typeof oldPrice !== 'number' || typeof newPrice !== 'number') return null;
+  return ((newPrice - oldPrice) / oldPrice) * 100;
 }
 
 // ------------------------------
@@ -260,11 +210,12 @@ async function renderFund(name) {
         <td class="col-rank">${h.rank}</td>
         <td>${h.name}</td>
         <td class="ticker">${h.ticker}</td>
-        <td class="num">${typeof h.weight === "number" ? h.weight.toFixed(2) + "%" : "n/a"}</td>
         <td class="num price">…</td>
-        <td class="num chg">…</td>
         <td class="num pct">…</td>
-        <td class="spark-cell"><span class="spark-holder"></span></td>
+        <td class="num ah">…</td>
+        <td class="num pct-1w">…</td>
+        <td class="num pct-4w">…</td>
+        <td class="num pct-8w">…</td>
       </tr>`
     )
     .join("");
@@ -286,7 +237,7 @@ async function renderFund(name) {
 
     if (!q || typeof q.previousClose !== "number") {
       row.querySelector(".price").textContent = q ? fmtPrice(q.price, q.currency) : "n/a";
-      row.querySelector(".chg").textContent = "n/a";
+      row.querySelector(".ah").textContent = "n/a";
       row.querySelector(".pct").textContent = "n/a";
       return;
     }
@@ -296,12 +247,35 @@ async function renderFund(name) {
     const cls = changeClass(change);
 
     row.querySelector(".price").textContent = fmtPrice(q.price, q.currency);
-    const chgCell = row.querySelector(".chg");
-    chgCell.textContent = `${change >= 0 ? "+" : ""}${fmtNum(change)}`;
-    chgCell.className = `num chg ${cls}`;
+
+    // After-hours display
+    const ahCell = row.querySelector(".ah");
+    const ahPct = q.afterHoursChangePercent !== null && typeof q.afterHoursChangePercent === "number"
+      ? q.afterHoursChangePercent
+      : null;
+    ahCell.textContent = ahPct !== null ? fmtPct(ahPct) : "–";
+    ahCell.className = `num ah ${changeClass(ahPct)}`;
+
     const pctCell = row.querySelector(".pct");
     pctCell.textContent = fmtPct(pct);
     pctCell.className = `num pct ${cls}`;
+
+    // Calculate % changes for 1w, 4w, 8w
+    const pct1w = calcPercentChange(q.series, TRADING_DAYS_1W);
+    const pct4w = calcPercentChange(q.series, TRADING_DAYS_4W);
+    const pct8w = calcPercentChange(q.series, TRADING_DAYS_8W);
+
+    const pct1wCell = row.querySelector(".pct-1w");
+    pct1wCell.textContent = pct1w !== null ? fmtPct(pct1w) : "n/a";
+    pct1wCell.className = `num pct-1w ${changeClass(pct1w)}`;
+
+    const pct4wCell = row.querySelector(".pct-4w");
+    pct4wCell.textContent = pct4w !== null ? fmtPct(pct4w) : "n/a";
+    pct4wCell.className = `num pct-4w ${changeClass(pct4w)}`;
+
+    const pct8wCell = row.querySelector(".pct-8w");
+    pct8wCell.textContent = pct8w !== null ? fmtPct(pct8w) : "n/a";
+    pct8wCell.className = `num pct-8w ${changeClass(pct8w)}`;
 
     pctSum += pct;
     pctCount += 1;
@@ -324,13 +298,69 @@ async function renderFund(name) {
     ? "Top-10 weighted daily move"
     : "Top-10 average daily move (equal-weighted)";
 
-  // Store quotes and draw the sparklines for the current window.
+  // Store quotes for future use.
   lastHoldings = fund.holdings;
   lastQuotes = quotes;
-  drawSparklines();
 
   document.getElementById("lastUpdated").textContent =
     "Prices updated: " + new Date().toLocaleString();
+
+  // Show/hide remove button
+  document.getElementById("removeBtn").style.display = "inline-block";
+}
+
+// Remove a fund from the tracker (stores in localStorage for persistence).
+function removeFund() {
+  if (!currentFund) return;
+  const deleted = JSON.parse(localStorage.getItem("deletedFunds") || "[]");
+  if (!deleted.includes(currentFund)) {
+    deleted.push(currentFund);
+    localStorage.setItem("deletedFunds", JSON.stringify(deleted));
+  }
+  populateFundList();
+  updateRestoreButton();
+  const select = document.getElementById("fundSelect");
+  if (select.value === currentFund) {
+    select.value = select.options[0]?.value || "";
+    if (select.value) loadSelectedFund();
+  }
+  document.getElementById("removeBtn").style.display = "none";
+  document.getElementById("fundMeta").style.display = "none";
+  document.getElementById("holdingsBody").innerHTML =
+    '<tr><td colspan="10" class="empty">Pick a fund above to load its holdings.</td></tr>';
+}
+
+// Update restore button visibility based on deleted funds.
+function updateRestoreButton() {
+  const deleted = JSON.parse(localStorage.getItem("deletedFunds") || "[]");
+  document.getElementById("restoreBtn").style.display = deleted.length > 0 ? "inline-block" : "none";
+}
+
+// Open restore modal with list of hidden funds.
+function openRestoreModal() {
+  const deleted = JSON.parse(localStorage.getItem("deletedFunds") || "[]");
+  const listContainer = document.getElementById("restoreList");
+  listContainer.innerHTML = deleted
+    .map((fundName) =>
+      `<div class="modal-item" onclick="restoreFund('${fundName.replace(/'/g, "\\'")}')">${fundName}</div>`
+    )
+    .join("");
+  document.getElementById("restoreModal").style.display = "flex";
+}
+
+// Close restore modal.
+function closeRestoreModal() {
+  document.getElementById("restoreModal").style.display = "none";
+}
+
+// Restore a specific deleted fund.
+function restoreFund(fundName) {
+  const deleted = JSON.parse(localStorage.getItem("deletedFunds") || "[]");
+  const filtered = deleted.filter(f => f !== fundName);
+  localStorage.setItem("deletedFunds", JSON.stringify(filtered));
+  populateFundList();
+  updateRestoreButton();
+  closeRestoreModal();
 }
 
 // ------------------------------
@@ -349,5 +379,8 @@ ensureFundsLoaded().then(() => {
 
   window.loadSelectedFund = loadSelectedFund;
   window.refreshCurrent = refreshCurrent;
-  window.setSparkDays = setSparkDays;
+  window.removeFund = removeFund;
+  window.openRestoreModal = openRestoreModal;
+  window.closeRestoreModal = closeRestoreModal;
+  window.restoreFund = restoreFund;
 });

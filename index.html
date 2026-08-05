@@ -21,7 +21,19 @@
     <select id="fundSelect"></select>
     <button onclick="loadSelectedFund()">Load fund</button>
     <button onclick="refreshCurrent()">Refresh prices</button>
+    <button id="removeBtn" style="display:none; background:#dc2626;" onclick="removeFund()">Remove fund</button>
+    <button id="restoreBtn" style="display:none; background:#7c3aed;" onclick="openRestoreModal()">Restore fund</button>
     <div class="error" id="errorBox"></div>
+  </div>
+
+  <div id="restoreModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Restore a hidden fund</h2>
+        <button class="modal-close" onclick="closeRestoreModal()">✕</button>
+      </div>
+      <div id="restoreList" class="modal-list"></div>
+    </div>
   </div>
 
   <div id="fundMeta" class="fund-meta" style="display:none;">
@@ -31,10 +43,6 @@
       <div class="metric-value" id="weightedMove">–</div>
     </div>
     <div class="metric-row">
-      <div class="metric-label" id="fundSparkLabel">30-day trend</div>
-      <div class="metric-value fund-spark" id="fundSparkHolder">–</div>
-    </div>
-    <div class="metric-row">
       <div class="metric-label">Holdings as at</div>
       <div class="metric-value" id="asAt">–</div>
     </div>
@@ -42,13 +50,7 @@
     <div class="small" id="lastUpdated"></div>
   </div>
 
-  <div class="table-head-row">
-    <div class="section-title">Top 10 holdings</div>
-    <span class="spark-toggle">Trend
-      <button type="button" class="seg active" data-days="30" onclick="setSparkDays(30)">30d</button>
-      <button type="button" class="seg" data-days="90" onclick="setSparkDays(90)">90d</button>
-    </span>
-  </div>
+  <div class="section-title">Top 10 holdings</div>
   <div class="table-wrap">
     <table id="holdingsTable">
       <thead>
@@ -56,15 +58,16 @@
           <th class="col-rank">#</th>
           <th>Holding</th>
           <th>Ticker</th>
-          <th class="num">Fund weight</th>
           <th class="num">Price</th>
-          <th class="num">Change</th>
           <th class="num">% vs prev close</th>
-          <th id="sparkHeader">30-day</th>
+          <th class="num">After hours</th>
+          <th class="num">1-week %</th>
+          <th class="num">4-week %</th>
+          <th class="num">8-week %</th>
         </tr>
       </thead>
       <tbody id="holdingsBody">
-        <tr><td colspan="8" class="empty">Pick a fund above to load its holdings.</td></tr>
+        <tr><td colspan="9" class="empty">Pick a fund above to load its holdings.</td></tr>
       </tbody>
     </table>
   </div>

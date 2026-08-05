@@ -54,11 +54,20 @@ def fetch_finnhub_quote(symbol):
     if not isinstance(data.get("c"), (int, float)) or not isinstance(data.get("pc"), (int, float)):
         raise ValueError(f"Finnhub: missing price data for {symbol}")
 
+    # Extract after-hours data from Finnhub (aftC = after-hours close)
+    after_hours_change = None
+    after_hours_change_pct = None
+    if isinstance(data.get("aftC"), (int, float)) and isinstance(data.get("c"), (int, float)):
+        after_hours_change = data["aftC"] - data["c"]
+        after_hours_change_pct = (after_hours_change / data["c"]) * 100
+
     return {
         "price": data["c"],
         "previousClose": data["pc"],
         "time": data.get("t", int(time.time())),
         "series": [data["pc"]],
+        "afterHoursChange": after_hours_change,
+        "afterHoursChangePercent": after_hours_change_pct,
     }
 
 
@@ -103,11 +112,29 @@ def fetch_fmp_quote(symbol):
     if not quote.get("price") or not quote.get("previousClose"):
         raise ValueError(f"FMP: missing price data for {symbol}")
 
+    # Fetch after-hours data from FMP's dedicated aftermarket endpoint
+    after_hours_change_pct = None
+    try:
+        ah_url = f"https://financialmodelingprep.com/stable/aftermarket-trade?symbol={symbol}&apikey={key}"
+        ah_req = urllib.request.Request(ah_url, headers={"Accept": "application/json"})
+        with urllib.request.urlopen(ah_req, timeout=15) as ah_resp:
+            ah_data = json.load(ah_resp)
+        if isinstance(ah_data, list) and len(ah_data) > 0:
+            ah_trade = ah_data[0]
+            # FMP returns after-hours price, calculate % change from regular market price
+            if isinstance(ah_trade.get("price"), (int, float)) and isinstance(quote.get("price"), (int, float)):
+                ah_price = ah_trade["price"]
+                market_price = quote["price"]
+                after_hours_change_pct = ((ah_price - market_price) / market_price) * 100
+    except Exception:
+        pass  # After-hours data not available, continue with None
+
     return {
         "price": quote["price"],
         "previousClose": quote["previousClose"],
         "time": int(quote.get("timestamp", 0) * 1000),
         "series": [quote["previousClose"]],
+        "afterHoursChangePercent": after_hours_change_pct,
     }
 
 
@@ -202,6 +229,17 @@ class Handler(SimpleHTTPRequestHandler):
             if not quote or not isinstance(quote.get("price"), (int, float)):
                 raise ValueError("Failed to fetch quote from any source")
 
+            # Always try to fetch after-hours data from FMP, even if other source was used for price
+            if not quote.get("afterHoursChangePercent"):
+                try:
+                    ah_quote = fetch_fmp_quote(symbol)
+                    if ah_quote.get("afterHoursChangePercent") is not None:
+                        quote["afterHoursChangePercent"] = ah_quote["afterHoursChangePercent"]
+                        print(f"DEBUG: Got after-hours for {symbol}: {ah_quote.get('afterHoursChangePercent')}%")
+                except Exception as e:
+                    print(f"DEBUG: FMP after-hours fetch failed for {symbol}: {e}")
+                    pass  # After-hours data not available
+
             return self._json(200, {
                 "symbol": symbol,
                 "price": quote["price"],
@@ -209,6 +247,7 @@ class Handler(SimpleHTTPRequestHandler):
                 "currency": None,
                 "time": quote["time"],
                 "series": quote.get("series", []),
+                "afterHoursChangePercent": quote.get("afterHoursChangePercent"),
                 "_source": source,
             })
         except Exception as e:  # noqa: BLE001 - dev server, surface anything

@@ -18,11 +18,22 @@ async function fetchFinnhubQuote(symbol) {
     throw new Error(`Finnhub: missing price data for ${symbol}`);
   }
 
+  // Finnhub includes after-hours data in the extended response
+  // Check for after-hours close (aftC) or after-hours change fields
+  let afterHoursChange = null;
+  let afterHoursChangePercent = null;
+  if (typeof data.aftC === 'number' && typeof data.c === 'number') {
+    afterHoursChange = data.aftC - data.c;
+    afterHoursChangePercent = (afterHoursChange / data.c) * 100;
+  }
+
   return {
     price: data.c,
     previousClose: data.pc,
     time: data.t || Math.floor(Date.now() / 1000),
     series: [data.pc],
+    afterHoursChange,
+    afterHoursChangePercent,
   };
 }
 
@@ -68,11 +79,31 @@ async function fetchFmpQuote(symbol) {
     throw new Error(`FMP: missing price data for ${symbol}`);
   }
 
+  // Fetch after-hours data from FMP's dedicated aftermarket endpoint
+  let afterHoursChangePercent = null;
+  try {
+    const ahUrl = `https://financialmodelingprep.com/stable/aftermarket-trade?symbol=${symbol}&apikey=${key}`;
+    const ahResponse = await fetch(ahUrl);
+    if (ahResponse.ok) {
+      const ahData = await ahResponse.json();
+      if (Array.isArray(ahData) && ahData.length > 0) {
+        const ahTrade = ahData[0];
+        // FMP returns after-hours price, calculate % change from regular market price
+        if (typeof ahTrade.price === 'number' && typeof quote.price === 'number') {
+          afterHoursChangePercent = ((ahTrade.price - quote.price) / quote.price) * 100;
+        }
+      }
+    }
+  } catch {
+    // After-hours data not available, continue with null
+  }
+
   return {
     price: quote.price,
     previousClose: quote.previousClose,
     time: quote.timestamp || Math.floor(Date.now() / 1000),
     series: [quote.previousClose],
+    afterHoursChangePercent,
   };
 }
 
@@ -159,6 +190,18 @@ export default async function handler(req, res) {
       throw new Error("Failed to fetch quote from any source");
     }
 
+    // Always try to fetch after-hours data from FMP, even if other source was used for price
+    if (!quote.afterHoursChangePercent) {
+      try {
+        const fmpQuote = await fetchFmpQuote(symbol);
+        if (typeof fmpQuote.afterHoursChangePercent === 'number') {
+          quote.afterHoursChangePercent = fmpQuote.afterHoursChangePercent;
+        }
+      } catch {
+        // After-hours data not available
+      }
+    }
+
     res.setHeader("Cache-Control", "s-maxage=60");
     res.status(200).json({
       symbol: symbol,
@@ -167,6 +210,7 @@ export default async function handler(req, res) {
       currency: null,
       time: quote.time,
       series: quote.series || [],
+      afterHoursChangePercent: quote.afterHoursChangePercent || null,
       _source: source, // Debug: shows which source was used
     });
   } catch (e) {

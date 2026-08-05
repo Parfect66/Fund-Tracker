@@ -159,53 +159,6 @@ th.num { text-align: right; }
 .down { color: #f87171; }
 .flat { color: #cbd0e6; }
 
-.table-head-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.spark-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: #a3a9c4;
-}
-
-.seg {
-  background: #0e142a;
-  border: 1px solid #2a3048;
-  color: #a3a9c4;
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 12px;
-  margin: 0;
-}
-
-.seg:hover { background: #161d38; }
-
-.seg.active {
-  background: #2f5bff;
-  border-color: #2f5bff;
-  color: #fff;
-}
-
-.fund-spark {
-  display: flex;
-  align-items: center;
-  height: 24px;
-  min-width: 80px;
-}
-
-.fund-spark .spark { width: 80px; height: 24px; }
-
-.spark-cell { width: 104px; }
-.spark { display: block; }
-.spark polyline { fill: none; stroke: currentColor; stroke-width: 1.5; }
-.spark circle { fill: currentColor; }
-.spark-na { color: #7c82a0; }
 
 .empty {
   text-align: center;
@@ -229,4 +182,83 @@ th.num { text-align: right; }
   margin-top: 30px;
   font-size: 11px;
   color: #7c82a0;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #151a2c;
+  border: 1px solid #252b42;
+  border-radius: 12px;
+  padding: 0;
+  max-width: 400px;
+  width: 90%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #252b42;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #a3a9c4;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  color: #f5f5f5;
+}
+
+.modal-list {
+  padding: 8px;
+  overflow-y: auto;
+}
+
+.modal-item {
+  padding: 12px 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  font-size: 14px;
+  color: #f5f5f5;
+  background: #0e142a;
+  border: 1px solid #2a3048;
+  transition: background-color 0.2s;
+}
+
+.modal-item:hover {
+  background: #161d38;
+  border-color: #2f5bff;
 }
