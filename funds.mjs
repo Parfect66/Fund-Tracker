@@ -96,6 +96,24 @@ export const FUNDS = {
     ],
   },
 
+  "SW BlackRock Gold & General Pn CS8": {
+    citicode: "R70C",
+    factsheet: "https://www.trustnet.com/factsheets/P/R70C/sw-blackrock-gold-general-pn-cs8/",
+    asAt: "06 Aug 2026",
+    holdings: [
+      { rank: 1,  name: "Barrick Gold Corp",         ticker: "ABX",     weight: 8.2 },
+      { rank: 2,  name: "Agnico Eagle Mines",        ticker: "AEM",     weight: 6.2 },
+      { rank: 3,  name: "Newmont Corporation",       ticker: "NEM",     weight: 6.0 },
+      { rank: 4,  name: "Wheaton Precious Metals",   ticker: "WPM",     weight: 5.5 },
+      { rank: 5,  name: "AngloGold Ashanti",         ticker: "AU",      weight: 5.5 },
+      { rank: 6,  name: "Franco-Nevada Corp",        ticker: "FNV",     weight: 4.7 },
+      { rank: 7,  name: "Northern Star Resources",   ticker: "NST.AX",  weight: 4.6 },
+      { rank: 8,  name: "Endeavour Mining",          ticker: "EDV.TO",  weight: 4.4 },
+      { rank: 9,  name: "Kinross Gold Corp",         ticker: "KGC",     weight: 4.0 },
+      { rank: 10, name: "Alamos Gold Inc",           ticker: "AGI.TO",  weight: 4.0 },
+    ],
+  },
+
   "SW SSGA International Equity Index CS8": {
     citicode: "R75K",
     factsheet: "https://www.trustnet.com/factsheets/P/R75K/sw-ssga-international-equity-index-cs8-pn/",
