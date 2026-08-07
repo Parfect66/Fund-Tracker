@@ -114,6 +114,24 @@ export const FUNDS = {
     ],
   },
 
+  "SW UK Real Estate Pn CS8": {
+    citicode: "R77H",
+    factsheet: "https://www.trustnet.com/factsheets/P/R77H/sw-uk-real-estate-pn-cs8/",
+    asAt: "07 Aug 2026",
+    holdings: [
+      { rank: 1,  name: "Segro REIT",                   ticker: "SGRO.L", weight: 23.8 },
+      { rank: 2,  name: "Land Securities Group REIT",   ticker: "LAND.L", weight: 9.6 },
+      { rank: 3,  name: "British Land REIT",            ticker: "BLND.L", weight: 8.3 },
+      { rank: 4,  name: "LondonMetric Property REIT",   ticker: "LMP.L",  weight: 7.9 },
+      { rank: 5,  name: "Tritax Big Box REIT",          ticker: "BBOX.L", weight: 7.6 },
+      { rank: 6,  name: "Unite Group",                  ticker: "UNIT.L", weight: 4.4 },
+      { rank: 7,  name: "Derwent London REIT",          ticker: "DLR.L",  weight: 4.3 },
+      { rank: 8,  name: "Primary Health Properties REIT", ticker: "PHP.L", weight: 4.2 },
+      { rank: 9,  name: "Shaftesbury Capital",          ticker: "SHA.L",  weight: 3.9 },
+      { rank: 10, name: "Hammerson REIT",               ticker: "HMSO.L", weight: 3.6 },
+    ],
+  },
+
   "SW SSGA International Equity Index CS8": {
     citicode: "R75K",
     factsheet: "https://www.trustnet.com/factsheets/P/R75K/sw-ssga-international-equity-index-cs8-pn/",
