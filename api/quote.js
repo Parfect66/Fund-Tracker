@@ -158,28 +158,36 @@ export default async function handler(req, res) {
     let quote = null;
     let source = "unknown";
 
-    // Try Finnhub first (primary source, good free tier, global coverage)
-    try {
-      quote = await fetchFinnhubQuote(symbol);
-      source = "Finnhub";
-    } catch (e) {
-      console.log(`Finnhub failed for ${symbol}: ${e.message}`);
+    // For Asia-Pacific symbols, use Marketstack first (more reliable for regional exchanges)
+    const isAsiaPacific = shouldUseMarketstack(symbol);
+
+    if (isAsiaPacific) {
       try {
-        // Fall back to FMP
-        quote = await fetchFmpQuote(symbol);
-        source = "FMP";
-      } catch (e2) {
-        console.log(`FMP failed for ${symbol}: ${e2.message}`);
+        quote = await fetchMarketstackQuote(symbol);
+        source = "Marketstack";
+      } catch (e) {
+        console.log(`Marketstack failed for ${symbol}: ${e.message}`);
         try {
-          // Fall back to Marketstack for international symbols
-          if (shouldUseMarketstack(symbol)) {
-            quote = await fetchMarketstackQuote(symbol);
-            source = "Marketstack";
-          } else {
-            throw e2; // Re-throw to fall through to Yahoo
-          }
-        } catch (e3) {
-          console.log(`Marketstack failed for ${symbol}: ${e3.message}`);
+          quote = await fetchFmpQuote(symbol);
+          source = "FMP";
+        } catch (e2) {
+          console.log(`FMP failed for ${symbol}: ${e2.message}`);
+          quote = await fetchYahooQuote(symbol);
+          source = "Yahoo";
+        }
+      }
+    } else {
+      // For other symbols, try Finnhub first
+      try {
+        quote = await fetchFinnhubQuote(symbol);
+        source = "Finnhub";
+      } catch (e) {
+        console.log(`Finnhub failed for ${symbol}: ${e.message}`);
+        try {
+          quote = await fetchFmpQuote(symbol);
+          source = "FMP";
+        } catch (e2) {
+          console.log(`FMP failed for ${symbol}: ${e2.message}`);
           quote = await fetchYahooQuote(symbol);
           source = "Yahoo";
         }
