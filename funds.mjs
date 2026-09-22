@@ -204,6 +204,24 @@ export const FUNDS = {
     ],
   },
 
+  "SW Fidelity American Pn CS8": {
+    citicode: "R71S",
+    factsheet: "https://www.trustnet.com/factsheets/P/R71S/sw-fidelity-american-pn-cs8/",
+    asAt: "22 Sep 2026",
+    holdings: [
+      { rank: 1,  name: "NVIDIA Corp",               ticker: "NVDA", weight: 10.0 },
+      { rank: 2,  name: "Microsoft Corp",            ticker: "MSFT", weight: 9.0 },
+      { rank: 3,  name: "Alphabet Inc",              ticker: "GOOGL", weight: 7.2 },
+      { rank: 4,  name: "Amazon.com Inc",            ticker: "AMZN", weight: 6.6 },
+      { rank: 5,  name: "Meta Platforms Inc",        ticker: "META", weight: 4.5 },
+      { rank: 6,  name: "Apple Inc",                 ticker: "AAPL", weight: 3.3 },
+      { rank: 7,  name: "Mastercard Inc",            ticker: "MA", weight: 3.1 },
+      { rank: 8,  name: "CSX Corp",                  ticker: "CSX", weight: 2.9 },
+      { rank: 9,  name: "Arista Networks Inc",       ticker: "ANET", weight: 2.7 },
+      { rank: 10, name: "DoorDash Inc",              ticker: "DASH", weight: 2.5 },
+    ],
+  },
+
   "SW SSGA Asia Pacific ex Japan CS8": {
     citicode: "R71X",
     factsheet: "https://www.trustnet.com/factsheets/P/R71X/sw-ssga-asia-pacific-ex-japan-pn-cs8/",
@@ -237,6 +255,24 @@ export const FUNDS = {
       { rank: 8,  name: "Viavi Solutions Inc",          ticker: "VIAV",   weight: 1.9 },
       { rank: 9,  name: "First BanCorp/Puerto Rico",    ticker: "FBP",    weight: 1.8 },
       { rank: 10, name: "McGrath RentCorp",             ticker: "MGRC",   weight: 1.7 },
+    ],
+  },
+
+  "Scottish Widows iShares Pacific ex Japan Equity Index CS8 Pn": {
+    citicode: "HPQA",
+    factsheet: "https://www.trustnet.com/factsheets/P/HPQA/scottish-widows-ishares-pacific-ex-japan-equity-index-cs8-pn/",
+    asAt: "22 Sep 2026",
+    holdings: [
+      { rank: 1,  name: "Taiwan Semiconductor Manufacturing", ticker: "2330.TW", weight: 19.7 },
+      { rank: 2,  name: "Samsung Electronics",         ticker: "005930.KS", weight: 9.5 },
+      { rank: 3,  name: "SK Hynix",                     ticker: "000660.KS", weight: 7.3 },
+      { rank: 4,  name: "BHP Group",                    ticker: "BHP.AX", weight: 2.6 },
+      { rank: 5,  name: "Commonwealth Bank of Australia", ticker: "CBA.AX", weight: 2.1 },
+      { rank: 6,  name: "MediaTek",                     ticker: "2454.TW", weight: 2.0 },
+      { rank: 7,  name: "DBS Group Holdings",           ticker: "D05.SI", weight: 1.4 },
+      { rank: 8,  name: "Delta Electronics",            ticker: "2308.TW", weight: 1.2 },
+      { rank: 9,  name: "Samsung Electronics Non Voting Pref", ticker: "068270.KS", weight: 1.2 },
+      { rank: 10, name: "AIA Group",                    ticker: "1299.HK", weight: 1.1 },
     ],
   },
 };
