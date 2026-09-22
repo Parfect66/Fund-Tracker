@@ -143,8 +143,9 @@ async function fetchYahooQuote(symbol) {
 }
 
 // Determine if a ticker should use Marketstack for better international coverage
+// Note: Taiwan (.TW) uses Yahoo instead - Marketstack is delayed, Yahoo has current data
 function shouldUseMarketstack(symbol) {
-  return /\.(L|T|KS|TW|DE|PA|MI|AX|TO|SS|HK|SI|NZ)$/i.test(symbol);
+  return /\.(L|T|KS|DE|PA|MI|AX|TO|SS|HK|SI|NZ)$/i.test(symbol);
 }
 
 export default async function handler(req, res) {
