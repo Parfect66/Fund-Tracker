@@ -223,6 +223,17 @@ export default async function handler(req, res) {
       }
     }
 
+    // Fix previousClose from series if API's previousClose field is stale.
+    // Yahoo sometimes returns outdated previousClose, but the series is current.
+    if (quote.series && quote.series.length >= 2) {
+      const seriesPrevClose = quote.series[quote.series.length - 2];
+      // Only trust series value if it's closer to current price (within 20% difference)
+      if (typeof seriesPrevClose === 'number' &&
+          Math.abs((quote.price - seriesPrevClose) / seriesPrevClose) < 0.2) {
+        quote.previousClose = seriesPrevClose;
+      }
+    }
+
     res.setHeader("Cache-Control", "s-maxage=60");
     res.status(200).json({
       symbol: symbol,
